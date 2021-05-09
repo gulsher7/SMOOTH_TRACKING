@@ -41,7 +41,7 @@ const Home = ({ navigation }) => {
         const locPermissionDenied = await locationPermission()
         if (locPermissionDenied) {
             const { latitude, longitude } = await getCurrentLocation()
-            console.log("get live location after 4 second")
+            // console.log("get live location after 4 second")
             animate(latitude, longitude);
             setState({
                 ...state,
@@ -143,7 +143,7 @@ const Home = ({ navigation }) => {
                                     // bottom: 300,
                                     // left: 30,
                                     // top: 100,
-                                }
+                                },
                             });
                         }}
                         onError={(errorMessage) => {

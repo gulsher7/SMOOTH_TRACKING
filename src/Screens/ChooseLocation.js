@@ -34,7 +34,9 @@ const ChooseLocation = (props) => {
             navigation.goBack()
         }
     }
-    const fetchDestinationCords = (lat, lng) => {
+    const fetchDestinationCords = (lat, lng, zipCode, cityText) => {
+        console.log("zip code==>>>",zipCode)
+        console.log('city text',cityText)
         setState({
             ...state,
             destinationCords: {
