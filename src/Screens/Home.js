@@ -9,7 +9,7 @@ import { locationPermission, getCurrentLocation } from '../helper/helperFunction
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
-const LATITUDE_DELTA = 0.9222;
+const LATITUDE_DELTA = 0.04;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const Home = ({ navigation }) => {
@@ -28,10 +28,13 @@ const Home = ({ navigation }) => {
             longitude: 77.1025,
             latitudeDelta: LATITUDE_DELTA,
             longitudeDelta: LONGITUDE_DELTA
-        })
+        }),
+        time: 0,
+        distance: 0,
+
     })
 
-    const { curLoc, destinationCords, isLoading, coordinate } = state
+    const { curLoc, time, distance, destinationCords, isLoading, coordinate } = state
 
     useEffect(() => {
         getLiveLocation()
@@ -79,12 +82,12 @@ const Home = ({ navigation }) => {
     }
 
     const animate = (latitude, longitude) => {
-        const newCoordinate = {latitude, longitude};
-        if(Platform.OS == 'android'){
-            if(markerRef.current){
-            markerRef.current.animateMarkerToCoordinate(newCoordinate, 7000);
+        const newCoordinate = { latitude, longitude };
+        if (Platform.OS == 'android') {
+            if (markerRef.current) {
+                markerRef.current.animateMarkerToCoordinate(newCoordinate, 7000);
             }
-        }else{
+        } else {
             coordinate.timing(newCoordinate).start();
         }
     }
@@ -98,9 +101,17 @@ const Home = ({ navigation }) => {
         })
     }
 
+    const fetchTime = (d, t) => {
+        setState(state => ({ ...state, distance: d, time: t }))
+    }
+
     return (
         <View style={styles.container}>
 
+            {distance !== 0 && time !== 0 && (<View style={{ alignItems: 'center', marginVertical: 16 }}>
+                <Text>Time left: {time.toFixed(0)} </Text>
+                <Text>Distance left: {distance.toFixed(0)}</Text>
+            </View>)}
             <View style={{ flex: 1 }}>
                 <MapView
                     ref={mapRef}
@@ -136,31 +147,31 @@ const Home = ({ navigation }) => {
                         onReady={result => {
                             console.log(`Distance: ${result.distance} km`)
                             console.log(`Duration: ${result.duration} min.`)
-
-                            mapRef.current.fitToCoordinates(result.coordinates, {
-                                edgePadding: {
-                                    // right: 30,
-                                    // bottom: 300,
-                                    // left: 30,
-                                    // top: 100,
-                                },
-                            });
+                            fetchTime(result.distance, result.duration),
+                                mapRef.current.fitToCoordinates(result.coordinates, {
+                                    edgePadding: {
+                                        // right: 30,
+                                        // bottom: 300,
+                                        // left: 30,
+                                        // top: 100,
+                                    },
+                                });
                         }}
                         onError={(errorMessage) => {
                             // console.log('GOT AN ERROR');
                         }}
                     />)}
                 </MapView>
-                     <TouchableOpacity
-                     style={{
-                         position:'absolute',
-                         bottom: 0,
-                         right: 0
-                     }}
-                     onPress={onCenter}
-                     >
-                         <Image source={imagePath.greenIndicator} />
-                         </TouchableOpacity>   
+                <TouchableOpacity
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0
+                    }}
+                    onPress={onCenter}
+                >
+                    <Image source={imagePath.greenIndicator} />
+                </TouchableOpacity>
             </View>
             <View style={styles.bottomCard}>
                 <Text>Where are you going..?</Text>

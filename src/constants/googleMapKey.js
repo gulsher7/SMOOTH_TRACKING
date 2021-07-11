@@ -1,1 +1,1 @@
-export const GOOGLE_MAP_KEY = "Paste your google key"
+export const GOOGLE_MAP_KEY = "paste your google key here"
