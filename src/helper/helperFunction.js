@@ -9,7 +9,9 @@ export const getCurrentLocation = () =>
                 const cords = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
+                    heading: position?.coords?.heading,
                 };
+                console
                 resolve(cords);
             },
             error => {

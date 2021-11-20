@@ -31,10 +31,13 @@ const Home = ({ navigation }) => {
         }),
         time: 0,
         distance: 0,
+        heading: 0
 
     })
 
-    const { curLoc, time, distance, destinationCords, isLoading, coordinate } = state
+    const { curLoc, time, distance, destinationCords, isLoading, coordinate,heading } = state
+    const updateState = (data) => setState((state) => ({ ...state, ...data }));
+
 
     useEffect(() => {
         getLiveLocation()
@@ -43,11 +46,11 @@ const Home = ({ navigation }) => {
     const getLiveLocation = async () => {
         const locPermissionDenied = await locationPermission()
         if (locPermissionDenied) {
-            const { latitude, longitude } = await getCurrentLocation()
-            // console.log("get live location after 4 second")
+            const { latitude, longitude, heading } = await getCurrentLocation()
+            console.log("get live location after 4 second",heading)
             animate(latitude, longitude);
-            setState({
-                ...state,
+            updateState({
+                heading: heading,
                 curLoc: { latitude, longitude },
                 coordinate: new AnimatedRegion({
                     latitude: latitude,
@@ -55,7 +58,6 @@ const Home = ({ navigation }) => {
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA
                 })
-
             })
         }
     }
@@ -65,19 +67,18 @@ const Home = ({ navigation }) => {
             getLiveLocation()
         }, 6000);
         return () => clearInterval(interval)
-    })
+    }, [])
 
     const onPressLocation = () => {
         navigation.navigate('chooseLocation', { getCordinates: fetchValue })
     }
     const fetchValue = (data) => {
         console.log("this is data", data)
-        setState({
-            ...state,
+        updateState({
             destinationCords: {
                 latitude: data.destinationCords.latitude,
                 longitude: data.destinationCords.longitude,
-            },
+            }
         })
     }
 
@@ -102,7 +103,10 @@ const Home = ({ navigation }) => {
     }
 
     const fetchTime = (d, t) => {
-        setState(state => ({ ...state, distance: d, time: t }))
+        updateState({
+            distance: d,
+            time: t
+        })
     }
 
     return (
@@ -126,8 +130,17 @@ const Home = ({ navigation }) => {
                     <Marker.Animated
                         ref={markerRef}
                         coordinate={coordinate}
-                        image={imagePath.icCurLoc}
-                    />
+                    >
+                        <Image
+                            source={imagePath.icBike}
+                            style={{
+                                width: 40,
+                                height: 40,
+                                transform: [{rotate: `${heading}deg`}]
+                            }}
+                            resizeMode="contain"
+                        />
+                    </Marker.Animated>
 
                     {Object.keys(destinationCords).length > 0 && (<Marker
                         coordinate={destinationCords}
